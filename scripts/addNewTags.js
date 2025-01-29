@@ -15,7 +15,7 @@ class Tags {
     });
   }
 
-  async applyNewTags(env, projectId) {
+  async applyNewTags(env, projectId, message = "") {
     if (!env || !ENVS.includes(env)) {
       assertUnreachable('missing env param! Please choose "rc" or "prod"');
     }
@@ -31,15 +31,15 @@ class Tags {
         );
       }
 
-      await this.applyNewTagToProject(project, env);
+      await this.applyNewTagToProject(project, env, message);
     } else {
       for (const project of PLATFORM.projects) {
-        await this.applyNewTagToProject(project, env);
+        await this.applyNewTagToProject(project, env, message);
       }
     }
   }
 
-  async applyNewTagToProject(project, env) {
+  async applyNewTagToProject(project, env, message) {
     if (!project?.options?.autotag) {
       console.log(colors.yellow, `\nProject «${project.title}» skipped`);
       return;
@@ -56,7 +56,10 @@ class Tags {
 
     const newTag = await this.getNewTag(project, currentTag?.name, env);
 
-    await this.api.Tags.create(project.id, newTag, TARGET_BRANCH);
+    // message - пояснение к созданию тега
+    await this.api.Tags.create(project.id, newTag, TARGET_BRANCH, {
+      message,
+    });
 
     console.log(
       colors.green,
@@ -94,7 +97,7 @@ class Tags {
   }
 }
 
-export default async function addNewTags(env, projectId) {
+export default async function addNewTags(env, projectId, message) {
   const tags = new Tags();
-  await tags.applyNewTags(env, projectId);
+  await tags.applyNewTags(env, projectId, message);
 }
