@@ -12,6 +12,9 @@ switch (cmd) {
   case "addNewTags":
     await task.default(...rest);
     break;
+  case 'toggleHold':
+    await task.default(...rest);
+    break;
   default:
     await task.default();
 }
